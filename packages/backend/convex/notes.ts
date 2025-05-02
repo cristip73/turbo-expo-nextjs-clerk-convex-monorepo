@@ -68,3 +68,41 @@ export const deleteNote = mutation({
     await ctx.db.delete(args.noteId);
   },
 });
+
+// Add updateNote mutation to edit notes
+export const updateNote = mutation({
+  args: {
+    id: v.id("notes"),
+    title: v.string(),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { id, title, content } = args;
+    const userId = await getUserId(ctx);
+    
+    // Verificăm dacă nota există
+    const existingNote = await ctx.db.get(id);
+    if (!existingNote) {
+      throw new Error("Note not found");
+    }
+    
+    // Verificăm dacă utilizatorul are permisiunea să editeze nota
+    if (existingNote.userId !== userId) {
+      throw new Error("Unauthorized to edit this note");
+    }
+    
+    // Actualizăm nota
+    await ctx.db.patch(id, { title, content });
+    
+    // Actualizăm și summary-ul dacă e necesar
+    if (existingNote.summary) {
+      await ctx.scheduler.runAfter(0, internal.openai.summary, {
+        id,
+        title,
+        content,
+      });
+    }
+    
+    return id;
+  },
+});
