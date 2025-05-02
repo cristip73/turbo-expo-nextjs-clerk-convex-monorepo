@@ -18,5 +18,12 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@1.22.19",
+  "dependencies": {
+    "@expo/config-plugins": "~10.0.0",
+    "expo": "^53.0.5",
+    "metro": "^0.82.0",
+    "metro-config": "^0.82.0",
+    "metro-resolver": "^0.82.0"
+  }
 }

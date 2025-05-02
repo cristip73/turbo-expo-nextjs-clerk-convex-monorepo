@@ -12,7 +12,7 @@
     "convex": "^1.13.0",
     "openai": "^4.45.0"
   },
-   "devDependencies": {
+  "devDependencies": {
     "typescript": "^5.7.3"
   }
 }

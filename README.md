@@ -1,3 +1,106 @@
+# Turbo Expo NextJS Clerk Convex Monorepo
+
+This is a monorepo setup using Turborepo with:
+- React Native (Expo) mobile app
+- Next.js web app
+- Convex backend
+- Clerk authentication
+
+## Project Structure
+
+```
+turbo-expo-nextjs-clerk-convex-monorepo/
+├── apps/
+│   ├── native/      # Expo React Native app
+│   └── web/         # Next.js web app
+├── packages/
+│   └── backend/     # Convex backend
+```
+
+## Setup
+
+### Prerequisites
+
+- Node.js (>=18.8.0)
+- Yarn
+- Expo CLI
+
+### Environment Configuration
+
+1. **Backend (Convex)**
+   - Navigate to `packages/backend`
+   - Copy `.example.env` to `.env`
+   - Set up Convex environment variables
+
+2. **Mobile App (Expo)**
+   - Navigate to `apps/native`
+   - Copy `.example.env` to `.env`
+   - Set the Convex URL (should be in format `https://[deployment-id].convex.cloud`)
+   - Set your Clerk publishable key
+
+3. **Web App (Next.js)**
+   - Navigate to `apps/web`
+   - Copy `.example.env` to `.env.local`
+   - Set the Convex URL
+   - Set your Clerk publishable key and secret key
+
+### Getting Started
+
+1. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+2. Start the development server (runs all workspaces):
+   ```bash
+   yarn dev
+   ```
+
+   Or run specific workspaces:
+
+   For Convex backend:
+   ```bash
+   cd packages/backend
+   npx convex dev
+   ```
+
+   For Expo mobile app:
+   ```bash
+   cd apps/native
+   npx expo start
+   ```
+
+   For Next.js web app:
+   ```bash
+   cd apps/web
+   yarn dev
+   ```
+
+## Dependencies
+
+- Turborepo for monorepo management
+- Convex for backend
+- Clerk for authentication
+- Expo for mobile app
+- Next.js for web app
+
+## Development
+
+### Mobile App (Expo)
+
+- URL: `exp://localhost:8081`
+- Running on real device: Scan QR code with Expo Go app
+- Running on iOS simulator: Press `i`
+- Running on Android emulator: Press `a`
+
+### Web App (Next.js)
+
+- URL: `http://localhost:3000`
+
+### Backend (Convex)
+
+- Dashboard: `https://dashboard.convex.dev`
+
 # Fullstack monorepo template feat. Expo, Turbo, Next.js, Convex, Clerk
 
 This is a modern TypeScript monorepo template with AI web and native apps
@@ -184,5 +287,5 @@ webhooks),
 for [function arguments](https://docs.convex.dev/functions/args-validation) and
 [database data](https://docs.convex.dev/database/schemas#schema-validation).
 
-Everything scales automatically, and it’s
+Everything scales automatically, and it's
 [free to start](https://www.convex.dev/plans).
