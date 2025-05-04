@@ -8,17 +8,21 @@ import {
   Image,
   FlatList,
   Dimensions,
+  Modal,
+  Alert,
 } from "react-native";
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { RFValue } from "react-native-responsive-fontsize";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser, useClerk } from "@clerk/clerk-expo";
 import { api } from "@packages/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
 
 const NotesDashboardScreen = ({ navigation }) => {
   const user = useUser();
+  const { signOut } = useClerk();
   const imageUrl = user?.user?.imageUrl;
   const firstName = user?.user?.firstName;
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const allNotes = useQuery(api.notes.getNotes);
   const [search, setSearch] = useState("");
@@ -45,11 +49,26 @@ const NotesDashboardScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Redirecționare explicită către LoginScreen după sign-out
+      navigation.replace("LoginScreen");
+    } catch (err) {
+      console.error("Logout error:", err);
+      Alert.alert("Error", "Couldn't sign out. Please try again.");
+    }
+  };
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
-          source={require("../assets/icons/logo2small.png")} // Replace with your logo image file
+          source={require("../assets/icons/logo2small.png")}
           style={styles.logo}
         />
       </View>
@@ -59,9 +78,13 @@ const NotesDashboardScreen = ({ navigation }) => {
         <Image style={styles.avatarSmall} />
         <Text style={styles.title}>Your Notes</Text>
         {imageUrl ? (
-          <Image style={styles.avatarSmall} source={{ uri: imageUrl }} />
+          <TouchableOpacity onPress={toggleLogoutModal}>
+            <Image style={styles.avatarSmall} source={{ uri: imageUrl }} />
+          </TouchableOpacity>
         ) : (
-          <Text>{firstName ? firstName : ""}</Text>
+          <TouchableOpacity onPress={toggleLogoutModal}>
+            <Text>{firstName ? firstName : ""}</Text>
+          </TouchableOpacity>
         )}
       </View>
       <View style={styles.searchContainer}>
@@ -105,6 +128,48 @@ const NotesDashboardScreen = ({ navigation }) => {
         <AntDesign name="pluscircle" size={20} color="#fff" />
         <Text style={styles.newNoteButtonText}>Create a New Note</Text>
       </TouchableOpacity>
+
+      {/* Modal pentru logout */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showLogoutModal}
+        onRequestClose={toggleLogoutModal}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={toggleLogoutModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Account</Text>
+              
+              <View style={styles.userInfoContainer}>
+                {imageUrl && (
+                  <Image 
+                    style={styles.modalAvatar} 
+                    source={{ uri: imageUrl }} 
+                  />
+                )}
+                <View style={styles.userTextContainer}>
+                  <Text style={styles.userName}>{user?.user?.fullName || firstName}</Text>
+                  <Text style={styles.userEmail}>{user?.user?.primaryEmailAddress?.emailAddress}</Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <AntDesign name="logout" size={20} color="#fff" />
+                <Text style={styles.logoutButtonText}>Sign Out</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.cancelButton} onPress={toggleLogoutModal}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -226,6 +291,91 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 0.5,
     borderColor: "rgba(0, 0, 0, 0.59)",
+  },
+  // Stiluri pentru modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    maxWidth: 320,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 22,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: RFValue(18),
+    fontFamily: "MSemiBold",
+    marginBottom: 20,
+    color: "#333",
+  },
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 25,
+    width: "100%",
+  },
+  modalAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  userTextContainer: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: RFValue(16),
+    fontFamily: "MMedium",
+    color: "#333",
+  },
+  userEmail: {
+    fontSize: RFValue(12),
+    fontFamily: "MRegular",
+    color: "#666",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    backgroundColor: "#0D87E1",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 12,
+  },
+  logoutButtonText: {
+    color: "white",
+    fontFamily: "MMedium",
+    fontSize: RFValue(15),
+    marginLeft: 10,
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#666",
+    fontFamily: "MMedium",
+    fontSize: RFValue(14),
   },
 });
 
